@@ -1,0 +1,5 @@
+/.idea/chestx_domain.iml
+/__pycache__/
+/.idea/
+/data/__pycache__/
+/config/__pycache__/
