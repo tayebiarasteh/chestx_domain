@@ -19,7 +19,7 @@ from sklearn import metrics
 from config.serde import open_experiment, create_experiment, delete_experiment, write_config
 from Train_Valid_chestx_domain import Training
 from Prediction_chestx_domain import Prediction
-from data.data_provider import vindr_data_loader_2D, chexpert_data_loader_2D, mimic_data_loader_2D, UKA_data_loader_2D, cxr14_data_loader_2D
+from data.data_provider import vindr_data_loader_2D, chexpert_data_loader_2D, mimic_data_loader_2D, UKA_data_loader_2D, cxr14_data_loader_2D, vindr_pediatric_data_loader_2D
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -58,9 +58,12 @@ def main_train_central_2D(global_config_path="/home/soroosh/Documents/Repositori
     if dataset_name == 'vindr':
         train_dataset = vindr_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment)
         valid_dataset = vindr_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False)
+    elif dataset_name == 'vindr_pediatric':
+        train_dataset = vindr_pediatric_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment)
+        valid_dataset = vindr_pediatric_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False)
     elif dataset_name == 'chexpert':
         train_dataset = chexpert_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment)
-        valid_dataset = chexpert_data_loader_2D(cfg_path=cfg_path, mode='valid', augment=False)
+        valid_dataset = chexpert_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False)
     elif dataset_name == 'mimic':
         train_dataset = mimic_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment)
         valid_dataset = mimic_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False)
@@ -69,7 +72,7 @@ def main_train_central_2D(global_config_path="/home/soroosh/Documents/Repositori
         valid_dataset = UKA_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False)
     elif dataset_name == 'cxr14':
         train_dataset = cxr14_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment)
-        valid_dataset = cxr14_data_loader_2D(cfg_path=cfg_path, mode='valid', augment=False)
+        valid_dataset = cxr14_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False)
 
     train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=params['Network']['batch_size'],
                                                pin_memory=True, drop_last=True, shuffle=True, num_workers=10)
@@ -380,9 +383,9 @@ def main_test_central_2D_pvalue_out_of_bootstrap(global_config_path="/home/soroo
 
 
 if __name__ == '__main__':
-    # delete_experiment(experiment_name='conventional_federated_3sites_vindrfull_1fc_2labelseach_lr5e5_batch12', global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml")
+    delete_experiment(experiment_name='vindrpediatric_Teston_vindr_lr5e5_resnet50_imagenet_4labels', global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml")
     main_train_central_2D(global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml",
-                  valid=True, resume=False, augment=True, experiment_name='temp', dataset_name='vindr', pretrained=True)
+                  valid=True, resume=False, augment=True, experiment_name='vindrpediatric_Teston_vindr_lr5e5_resnet50_imagenet_4labels', dataset_name='vindr_pediatric', pretrained=True)
 
     # main_test_central_2D_with_bootstrapping(global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml",
     #                      experiment_name='mimicfull_central5label_cardiomegaly_effusion_pneumonia_consolidation_nofinding', dataset_name='cxr14', epoch_num=28)
