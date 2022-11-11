@@ -28,7 +28,8 @@ warnings.filterwarnings('ignore')
 
 
 def main_train_central_2D(global_config_path="/home/soroosh/Documents/Repositories/chestx/config/config.yaml", valid=False,
-                  resume=False, augment=False, experiment_name='name', dataset_name='vindr', singlehead=False, pretrained=False):
+                  resume=False, augment=False, experiment_name='name', dataset_name='vindr', pretrained=False,
+                          lr=5e5, weight_decay=0, num_epochs=100, chosen_labels=['No finding', 'Pneumonia']):
     """Main function for training + validation centrally
 
         Parameters
@@ -56,23 +57,23 @@ def main_train_central_2D(global_config_path="/home/soroosh/Documents/Repositori
     cfg_path = params["cfg_path"]
 
     if dataset_name == 'vindr':
-        train_dataset = vindr_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment)
-        valid_dataset = vindr_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False)
+        train_dataset = vindr_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment, chosen_labels=chosen_labels)
+        valid_dataset = vindr_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False, chosen_labels=chosen_labels)
     elif dataset_name == 'vindr_pediatric':
-        train_dataset = vindr_pediatric_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment)
-        valid_dataset = vindr_pediatric_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False)
+        train_dataset = vindr_pediatric_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment, chosen_labels=chosen_labels)
+        valid_dataset = vindr_pediatric_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False, chosen_labels=chosen_labels)
     elif dataset_name == 'chexpert':
-        train_dataset = chexpert_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment)
-        valid_dataset = chexpert_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False)
+        train_dataset = chexpert_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment, chosen_labels=chosen_labels)
+        valid_dataset = chexpert_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False, chosen_labels=chosen_labels)
     elif dataset_name == 'mimic':
-        train_dataset = mimic_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment)
-        valid_dataset = mimic_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False)
+        train_dataset = mimic_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment, chosen_labels=chosen_labels)
+        valid_dataset = mimic_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False, chosen_labels=chosen_labels)
     elif dataset_name == 'UKA':
-        train_dataset = UKA_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment)
-        valid_dataset = UKA_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False)
+        train_dataset = UKA_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment, chosen_labels=chosen_labels)
+        valid_dataset = UKA_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False, chosen_labels=chosen_labels)
     elif dataset_name == 'cxr14':
-        train_dataset = cxr14_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment)
-        valid_dataset = cxr14_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False)
+        train_dataset = cxr14_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment, chosen_labels=chosen_labels)
+        valid_dataset = cxr14_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False, chosen_labels=chosen_labels)
 
     train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=params['Network']['batch_size'],
                                                pin_memory=True, drop_last=True, shuffle=True, num_workers=10)
@@ -90,15 +91,15 @@ def main_train_central_2D(global_config_path="/home/soroosh/Documents/Repositori
     # model = load_pretrained_timm_model(num_classes=len(weight), model_name='vit_base_patch16_224', pretrained=pretrained)
 
     loss_function = BCEWithLogitsLoss
-    optimizer = torch.optim.Adam(model.parameters(), lr=float(params['Network']['lr']),
-                                 weight_decay=float(params['Network']['weight_decay']), amsgrad=params['Network']['amsgrad'])
+    optimizer = torch.optim.Adam(model.parameters(), lr=float(lr),
+                                 weight_decay=float(weight_decay), amsgrad=params['Network']['amsgrad'])
 
     trainer = Training(cfg_path, resume=resume, label_names=label_names)
     if resume == True:
-        trainer.load_checkpoint(model=model, optimiser=optimizer, loss_function=loss_function, weight=weight, label_names=label_names, singlehead=singlehead)
+        trainer.load_checkpoint(model=model, optimiser=optimizer, loss_function=loss_function, weight=weight, label_names=label_names)
     else:
         trainer.setup_model(model=model, optimiser=optimizer, loss_function=loss_function, weight=weight)
-    trainer.train_epoch(train_loader=train_loader, valid_loader=valid_loader)
+    trainer.train_epoch(train_loader=train_loader, valid_loader=valid_loader, num_epochs=num_epochs)
 
 
 
@@ -384,8 +385,11 @@ def main_test_central_2D_pvalue_out_of_bootstrap(global_config_path="/home/soroo
 
 if __name__ == '__main__':
     delete_experiment(experiment_name='temp', global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml")
+
+    chosen_labels = ['No finding', 'Pneumonia']  # for comparison to VinDr-pcxr
     main_train_central_2D(global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml",
-                  valid=True, resume=False, augment=True, experiment_name='temp', dataset_name='UKA', pretrained=True)
+                  valid=True, resume=False, augment=True, experiment_name='temp', dataset_name='vindr_pediatric', pretrained=True,
+                          lr=5e5, weight_decay=0, num_epochs=100, chosen_labels=chosen_labels)
 
     # main_test_central_2D_with_bootstrapping(global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml",
     #                      experiment_name='mimicfull_central5label_cardiomegaly_effusion_pneumonia_consolidation_nofinding', dataset_name='cxr14', epoch_num=28)

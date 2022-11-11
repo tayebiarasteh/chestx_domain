@@ -181,13 +181,13 @@ class Training:
                 param.requires_grad = True
 
 
-    def train_epoch(self, train_loader, valid_loader=None):
+    def train_epoch(self, train_loader, valid_loader=None, num_epochs=1000):
         """Training epoch
         """
         self.params = read_config(self.cfg_path)
         total_start_time = time.time()
 
-        for epoch in range(self.params['Network']['num_epochs'] - self.epoch):
+        for epoch in range(num_epochs - self.epoch):
             self.epoch += 1
 
             # initializing the loss list
