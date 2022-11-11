@@ -65,7 +65,12 @@ class vindr_data_loader_2D(Dataset):
             self.file_base_dir = os.path.join(self.file_base_dir, 'preprocessed/test')
 
         self.file_path_list = list(self.subset_df['image_id'])
-        self.chosen_labels = ['No finding', 'Pneumonia', 'Tuberculosis', 'Lung tumor'] # for comparison to VinDr-pcxr
+        #### for comparisons #####
+        self.chosen_labels = ['No finding', 'Pneumonia'] # for comparison to VinDr-pcxr
+        # self.chosen_labels = ['Atelectasis', 'Cardiomegaly', 'Consolidation', 'Lung Opacity', 'Pleural effusion', 'Pneumothorax', 'Pneumonia', 'No finding'] # for comparison to chexpert/mimic
+        # self.chosen_labels = ['Atelectasis', 'Cardiomegaly', 'Pleural effusion', 'Infiltration', 'Pneumonia', 'Pneumothorax', 'Consolidation' 'Pulmonary fibrosis', 'Pleural thickening', 'No finding'] # for comparison to CXR14
+        # self.chosen_labels = ['Cardiomegaly', 'Pleural effusion', 'Atelectasis'] # for comparison to UKA
+        #### for comparisons #####
 
 
 
@@ -159,7 +164,7 @@ class vindr_pediatric_data_loader_2D(Dataset):
             self.file_base_dir = os.path.join(self.file_base_dir, 'preprocessed/test')
 
         self.file_path_list = list(self.subset_df['image_id'])
-        self.chosen_labels = ['No finding', 'Pneumonia', 'Tuberculosis', 'Lung tumor'] # Test on VinDr
+        self.chosen_labels = ['No finding', 'Pneumonia'] # Test on vindr/mimic/chexpert/cxr14
 
 
 
@@ -251,7 +256,14 @@ class chexpert_data_loader_2D(Dataset):
 
         self.subset_df = self.subset_df[self.subset_df['view'] == 'Frontal']
         self.file_path_list = list(self.subset_df['jpg_rel_path'])
-        self.chosen_labels = ['atelectasis', 'cardiomegaly', 'consolidation', 'edema', 'lung_opacity', 'pleural_effusion', 'pneumothorax', 'pneumonia', 'no_finding'] # Test on VinDr
+        self.chosen_labels = ['atelectasis', 'cardiomegaly', 'consolidation', 'lung_opacity', 'pleural_effusion', 'pneumothorax', 'pneumonia', 'no_finding'] # Test on VinDr
+        # self.chosen_labels = ['atelectasis', 'cardiomegaly', 'pleural_effusion', 'pneumonia', 'pneumothorax', 'consolidation', 'edema', 'no_finding'] # Test on CXR14
+
+        #### for comparisons #####
+        # self.chosen_labels = ['no_finding', 'pneumonia'] # for comparison to VinDr-pcxr
+        # self.chosen_labels = ['atelectasis', 'cardiomegaly', 'consolidation', 'edema', 'enlarged_cardiomediastinum', 'fracture', 'lung_lesion', 'lung_opacity', 'no_finding', 'pleural_effusion', 'pleural_other', 'pneumonia', 'pneumothorax', 'support_devices'] # for comparison to mimic
+        # self.chosen_labels = ['cardiomegaly', 'pleural_effusion', 'atelectasis'] # for comparison to UKA
+        #### for comparisons #####
 
 
 
@@ -353,7 +365,14 @@ class mimic_data_loader_2D(Dataset):
         APview = self.subset_df[self.subset_df['view'] == 'AP']
         self.subset_df = PAview.append(APview)
         self.file_path_list = list(self.subset_df['jpg_rel_path'])
-        self.chosen_labels = ['atelectasis', 'cardiomegaly', 'consolidation', 'edema', 'lung_opacity', 'pleural_effusion', 'pneumothorax', 'pneumonia', 'no_finding'] # Test on VinDr
+        self.chosen_labels = ['atelectasis', 'cardiomegaly', 'consolidation', 'lung_opacity', 'pleural_effusion', 'pneumothorax', 'pneumonia', 'no_finding'] # Test on VinDr
+        # self.chosen_labels = ['atelectasis', 'cardiomegaly', 'pleural_effusion', 'pneumonia', 'pneumothorax', 'consolidation', 'edema', 'no_finding'] # Test on CXR14
+        # self.chosen_labels = ['no_finding', 'pneumonia'] # Test on VinDr-pcxr
+        # self.chosen_labels = ['atelectasis', 'cardiomegaly', 'consolidation', 'edema', 'enlarged_cardiomediastinum', 'fracture', 'lung_lesion', 'lung_opacity', 'no_finding', 'pleural_effusion', 'pleural_other', 'pneumonia', 'pneumothorax', 'support_devices'] # Test on chexpert / for comparison to chexpert
+
+        #### for comparisons #####
+        # self.chosen_labels = ['cardiomegaly', 'pleural_effusion', 'atelectasis'] # for comparison to UKA
+        #### for comparisons #####
 
 
 
@@ -451,11 +470,7 @@ class UKA_data_loader_2D(Dataset):
 
         self.file_base_dir = os.path.join(self.file_base_dir, 'UKA_preprocessed')
         self.file_path_list = list(self.subset_df['image_id'])
-        # self.chosen_labels = ['cardiomegaly', 'congestion', 'pleural_effusion_right', 'pleural_effusion_left', 'pneumonic_infiltrates_right',
-        #                       'pneumonic_infiltrates_left', 'atelectasis_right', 'atelectasis_left'] # 8 labels
-        # self.chosen_labels = ['pleural_effusion_left', 'pleural_effusion_right', 'cardiomegaly', 'pneumonic_infiltrates_left', 'pneumonic_infiltrates_right'] # 5 labels
-        # self.chosen_labels = ['cardiomegaly', 'pleural_effusion_left'] # domain transfer for cardiomegaly
-        self.chosen_labels = ['pleural_effusion_right', 'pneumonic_infiltrates_left'] # 2 labels
+        self.chosen_labels = ['cardiomegaly', 'pleural_effusion', 'atelectasis'] # Test on vindr/mimic/chexpert/cxr14
 
 
 
@@ -499,10 +514,19 @@ class UKA_data_loader_2D(Dataset):
                     label[idx] = 0
                 elif int(label_df[self.chosen_labels[idx]].values[0]) == 2:
                     label[idx] = 0
-            else:
-                if int(label_df[self.chosen_labels[idx]].values[0]) == 3:
+
+            elif self.chosen_labels[idx] == 'pleural_effusion':
+                if int(label_df['pleural_effusion_right'].values[0]) == 3 or int(label_df['pleural_effusion_left'].values[0]) == 3:
                     label[idx] = 1
-                elif int(label_df[self.chosen_labels[idx]].values[0]) == 4:
+                elif int(label_df['pleural_effusion_right'].values[0]) == 4 or int(label_df['pleural_effusion_left'].values[0]) == 4:
+                    label[idx] = 1
+                else:
+                    label[idx] = 0
+
+            elif self.chosen_labels[idx] == 'atelectasis':
+                if int(label_df['atelectasis_right'].values[0]) == 3 or int(label_df['atelectasis_left'].values[0]) == 3:
+                    label[idx] = 1
+                elif int(label_df['atelectasis_right'].values[0]) == 4 or int(label_df['atelectasis_left'].values[0]) == 4:
                     label[idx] = 1
                 else:
                     label[idx] = 0
@@ -524,7 +548,20 @@ class UKA_data_loader_2D(Dataset):
         output_tensor = torch.zeros((len(self.chosen_labels)))
 
         for idx, diseases in enumerate(self.chosen_labels):
-            disease_length = sum(train_df[diseases].values == 1)
+            if diseases == 'pleural_effusion':
+                disease_length = sum(train_df['pleural_effusion_right'].values == 3)
+                disease_length += sum(train_df['pleural_effusion_left'].values == 3)
+                disease_length += sum(train_df['pleural_effusion_right'].values == 4)
+                disease_length += sum(train_df['pleural_effusion_left'].values == 4)
+            elif diseases == 'atelectasis':
+                disease_length = sum(train_df['atelectasis_right'].values == 3)
+                disease_length += sum(train_df['atelectasis_left'].values == 3)
+                disease_length += sum(train_df['atelectasis_right'].values == 4)
+                disease_length += sum(train_df['atelectasis_left'].values == 4)
+            else:
+                disease_length = sum(train_df[diseases].values == 3)
+                disease_length += sum(train_df[diseases].values == 4)
+
             output_tensor[idx] = (full_length - disease_length) / (disease_length + epsilon)
 
         return output_tensor
@@ -564,7 +601,14 @@ class cxr14_data_loader_2D(Dataset):
             self.subset_df = self.org_df[self.org_df['split'] == 'test']
 
         self.file_path_list = list(self.subset_df['img_rel_path'])
-        self.chosen_labels = ['atelectasis', 'cardiomegaly', 'effusion', 'nfiltration', 'pneumonia', 'pneumothorax', 'consolidation', 'edema', 'fibrosis', 'pleural_thickening', 'no_finding'] # Test on VinDr
+        self.chosen_labels = ['atelectasis', 'cardiomegaly', 'effusion', 'infiltration', 'pneumonia', 'pneumothorax', 'consolidation', 'fibrosis', 'pleural_thickening', 'no_finding'] # Test on VinDr
+
+        #### for comparisons #####
+        self.chosen_labels = ['no_finding', 'pneumonia'] # for comparison to VinDr-pcxr
+        # self.chosen_labels = ['atelectasis', 'cardiomegaly', 'effusion', 'pneumonia', 'pneumothorax', 'consolidation', 'edema', 'no_finding'] # for comparison to chexpert/mimic
+        # self.chosen_labels = ['cardiomegaly', 'effusion', 'atelectasis'] # for comparison to UKA
+        #### for comparisons #####
+
 
 
 

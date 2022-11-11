@@ -383,14 +383,14 @@ def main_test_central_2D_pvalue_out_of_bootstrap(global_config_path="/home/soroo
 
 
 if __name__ == '__main__':
-    delete_experiment(experiment_name='vindrpediatric_Teston_vindr_lr5e5_resnet50_imagenet_4labels', global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml")
+    delete_experiment(experiment_name='temp', global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml")
     main_train_central_2D(global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml",
-                  valid=True, resume=False, augment=True, experiment_name='vindrpediatric_Teston_vindr_lr5e5_resnet50_imagenet_4labels', dataset_name='vindr_pediatric', pretrained=True)
+                  valid=True, resume=False, augment=True, experiment_name='temp', dataset_name='UKA', pretrained=True)
 
     # main_test_central_2D_with_bootstrapping(global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml",
     #                      experiment_name='mimicfull_central5label_cardiomegaly_effusion_pneumonia_consolidation_nofinding', dataset_name='cxr14', epoch_num=28)
 
-    # main_test_central_2D_pvalue_out_of_bootstrap(global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml",
-    #                      experiment_name1='vindr2k_lr9e5_1fc_from23K_ofUKAfull_7labels', experiment_name2='vindr_new2k_1fc_resnet50_lr5e5_7labels',
-    #                                              experiment1_epoch_num=3965, experiment2_epoch_num=970, dataset_name='vindr')
+    main_test_central_2D_pvalue_out_of_bootstrap(global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml",
+                         experiment_name1='vindr_to_compare_with_vindrpediatric_lr1e5_resnet50_imagenet_3labels', experiment_name2='vindr_pediatric_Teston_vindr_lr1e5_resnet50_imagenet_3labels',
+                                                 experiment1_epoch_num=9, experiment2_epoch_num=28, dataset_name='vindr')
 
