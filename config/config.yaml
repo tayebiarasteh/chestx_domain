@@ -1,7 +1,12 @@
 Network:
   batch_size: 8 # resnet
 #  batch_size: 1 # ViT
+  lr: 5e-5 # mimic/chexpert imagenet
+#  lr: 3e-5 # vindr imagenet
+  weight_decay: 0
   amsgrad: False
+  num_epochs: 45
+  #num_epochs: 50000
 network_output_path: network_data/
 output_data_path: output_data/
 tb_logs_path: tensor_board_logs/

@@ -31,7 +31,7 @@ class vindr_data_loader_2D(Dataset):
     """
     This is the pipeline based on Pytorch's Dataset and Dataloader
     """
-    def __init__(self, cfg_path, mode='train', augment=False, chosen_labels=None):
+    def __init__(self, cfg_path, mode='train', augment=False):
         """
         Parameters
         ----------
@@ -65,10 +65,9 @@ class vindr_data_loader_2D(Dataset):
             self.file_base_dir = os.path.join(self.file_base_dir, 'preprocessed/test')
 
         self.file_path_list = list(self.subset_df['image_id'])
-        self.chosen_labels = chosen_labels
 
         #### for comparisons #####
-        # self.chosen_labels = ['No finding', 'Pneumonia'] # for comparison to VinDr-pcxr
+        self.chosen_labels = ['No finding', 'Pneumonia'] # for comparison to VinDr-pcxr
         # self.chosen_labels = ['Atelectasis', 'Cardiomegaly', 'Consolidation', 'Lung Opacity', 'Pleural effusion', 'Pneumothorax', 'Pneumonia', 'No finding'] # for comparison to chexpert/mimic
         # self.chosen_labels = ['Atelectasis', 'Cardiomegaly', 'Pleural effusion', 'Infiltration', 'Pneumonia', 'Pneumothorax', 'Consolidation' 'Pulmonary fibrosis', 'Pleural thickening', 'No finding'] # for comparison to CXR14
         # self.chosen_labels = ['Cardiomegaly', 'Pleural effusion', 'Atelectasis'] # for comparison to UKA
@@ -134,7 +133,7 @@ class vindr_pediatric_data_loader_2D(Dataset):
     """
     This is the pipeline based on Pytorch's Dataset and Dataloader
     """
-    def __init__(self, cfg_path, mode='train', augment=False, chosen_labels=None):
+    def __init__(self, cfg_path, mode='train', augment=False):
         """
         Parameters
         ----------
@@ -166,9 +165,8 @@ class vindr_pediatric_data_loader_2D(Dataset):
             self.file_base_dir = os.path.join(self.file_base_dir, 'preprocessed/test')
 
         self.file_path_list = list(self.subset_df['image_id'])
-        self.chosen_labels = chosen_labels
 
-        # self.chosen_labels = ['No finding', 'Pneumonia'] # Test on vindr/mimic/chexpert/cxr14
+        self.chosen_labels = ['No finding', 'Pneumonia'] # Test on vindr/mimic/chexpert/cxr14
 
 
 
@@ -230,7 +228,7 @@ class chexpert_data_loader_2D(Dataset):
     """
     This is the pipeline based on Pytorch's Dataset and Dataloader
     """
-    def __init__(self, cfg_path, mode='train', augment=False, chosen_labels=None):
+    def __init__(self, cfg_path, mode='train', augment=False):
         """
         Parameters
         ----------
@@ -260,9 +258,8 @@ class chexpert_data_loader_2D(Dataset):
 
         self.subset_df = self.subset_df[self.subset_df['view'] == 'Frontal']
         self.file_path_list = list(self.subset_df['jpg_rel_path'])
-        self.chosen_labels = chosen_labels
 
-        # self.chosen_labels = ['atelectasis', 'cardiomegaly', 'consolidation', 'lung_opacity', 'pleural_effusion', 'pneumothorax', 'pneumonia', 'no_finding'] # Test on VinDr
+        self.chosen_labels = ['atelectasis', 'cardiomegaly', 'consolidation', 'lung_opacity', 'pleural_effusion', 'pneumothorax', 'pneumonia', 'no_finding'] # Test on VinDr
         # self.chosen_labels = ['atelectasis', 'cardiomegaly', 'pleural_effusion', 'pneumonia', 'pneumothorax', 'consolidation', 'edema', 'no_finding'] # Test on CXR14
 
         #### for comparisons #####
@@ -339,7 +336,7 @@ class mimic_data_loader_2D(Dataset):
     """
     This is the pipeline based on Pytorch's Dataset and Dataloader
     """
-    def __init__(self, cfg_path, mode='train', augment=False, chosen_labels=None):
+    def __init__(self, cfg_path, mode='train', augment=False):
         """
         Parameters
         ----------
@@ -371,9 +368,8 @@ class mimic_data_loader_2D(Dataset):
         APview = self.subset_df[self.subset_df['view'] == 'AP']
         self.subset_df = PAview.append(APview)
         self.file_path_list = list(self.subset_df['jpg_rel_path'])
-        self.chosen_labels = chosen_labels
 
-        # self.chosen_labels = ['atelectasis', 'cardiomegaly', 'consolidation', 'lung_opacity', 'pleural_effusion', 'pneumothorax', 'pneumonia', 'no_finding'] # Test on VinDr
+        self.chosen_labels = ['atelectasis', 'cardiomegaly', 'consolidation', 'lung_opacity', 'pleural_effusion', 'pneumothorax', 'pneumonia', 'no_finding'] # Test on VinDr
         # self.chosen_labels = ['atelectasis', 'cardiomegaly', 'pleural_effusion', 'pneumonia', 'pneumothorax', 'consolidation', 'edema', 'no_finding'] # Test on CXR14
         # self.chosen_labels = ['no_finding', 'pneumonia'] # Test on VinDr-pcxr
         # self.chosen_labels = ['atelectasis', 'cardiomegaly', 'consolidation', 'edema', 'enlarged_cardiomediastinum', 'fracture', 'lung_lesion', 'lung_opacity', 'no_finding', 'pleural_effusion', 'pleural_other', 'pneumonia', 'pneumothorax', 'support_devices'] # Test on chexpert / for comparison to chexpert
@@ -449,7 +445,7 @@ class UKA_data_loader_2D(Dataset):
     """
     This is the pipeline based on Pytorch's Dataset and Dataloader
     """
-    def __init__(self, cfg_path, mode='train', augment=False, chosen_labels=None):
+    def __init__(self, cfg_path, mode='train', augment=False):
         """
         Parameters
         ----------
@@ -478,9 +474,8 @@ class UKA_data_loader_2D(Dataset):
 
         self.file_base_dir = os.path.join(self.file_base_dir, 'UKA_preprocessed')
         self.file_path_list = list(self.subset_df['image_id'])
-        self.chosen_labels = chosen_labels
 
-        # self.chosen_labels = ['cardiomegaly', 'pleural_effusion', 'atelectasis'] # Test on vindr/mimic/chexpert/cxr14
+        self.chosen_labels = ['cardiomegaly', 'pleural_effusion', 'atelectasis'] # Test on vindr/mimic/chexpert/cxr14
 
 
 
@@ -582,7 +577,7 @@ class cxr14_data_loader_2D(Dataset):
     """
     This is the pipeline based on Pytorch's Dataset and Dataloader
     """
-    def __init__(self, cfg_path, mode='train', augment=False, chosen_labels=None):
+    def __init__(self, cfg_path, mode='train', augment=False):
         """
         Parameters
         ----------
@@ -611,14 +606,13 @@ class cxr14_data_loader_2D(Dataset):
             self.subset_df = self.org_df[self.org_df['split'] == 'test']
 
         self.file_path_list = list(self.subset_df['img_rel_path'])
-        self.chosen_labels = chosen_labels
 
         # self.chosen_labels = ['atelectasis', 'cardiomegaly', 'effusion', 'infiltration', 'pneumonia', 'pneumothorax', 'consolidation', 'fibrosis', 'pleural_thickening', 'no_finding'] # Test on VinDr
 
         #### for comparisons #####
         # self.chosen_labels = ['no_finding', 'pneumonia'] # for comparison to VinDr-pcxr
         # self.chosen_labels = ['atelectasis', 'cardiomegaly', 'effusion', 'pneumonia', 'pneumothorax', 'consolidation', 'edema', 'no_finding'] # for comparison to chexpert/mimic
-        # self.chosen_labels = ['cardiomegaly', 'effusion', 'atelectasis'] # for comparison to UKA
+        self.chosen_labels = ['cardiomegaly', 'effusion', 'atelectasis'] # for comparison to UKA
         #### for comparisons #####
 
 
