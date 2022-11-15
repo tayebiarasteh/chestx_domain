@@ -69,8 +69,8 @@ class vindr_data_loader_2D(Dataset):
         #### for comparisons #####
         # self.chosen_labels = ['No finding', 'Pneumonia'] # for comparison to VinDr-pcxr
         # self.chosen_labels = ['Atelectasis', 'Cardiomegaly', 'Consolidation', 'Lung Opacity', 'Pleural effusion', 'Pneumothorax', 'Pneumonia', 'No finding'] # for comparison to chexpert/mimic
-        self.chosen_labels = ['Atelectasis', 'Cardiomegaly', 'Pleural effusion', 'Infiltration', 'Pneumonia', 'Pneumothorax', 'Consolidation', 'Pulmonary fibrosis', 'Pleural thickening', 'No finding'] # for comparison to CXR14
-        # self.chosen_labels = ['Cardiomegaly', 'Pleural effusion', 'Atelectasis'] # for comparison to UKA
+        # self.chosen_labels = ['Atelectasis', 'Cardiomegaly', 'Pleural effusion', 'Infiltration', 'Pneumonia', 'Pneumothorax', 'Consolidation', 'Pulmonary fibrosis', 'Pleural thickening', 'No finding'] # for comparison to CXR14
+        self.chosen_labels = ['Cardiomegaly', 'Pleural effusion', 'Atelectasis'] # for comparison to UKA
         #### for comparisons #####
 
 
@@ -607,10 +607,10 @@ class cxr14_data_loader_2D(Dataset):
 
         self.file_path_list = list(self.subset_df['img_rel_path'])
 
-        # self.chosen_labels = ['atelectasis', 'cardiomegaly', 'effusion', 'infiltration', 'pneumonia', 'pneumothorax', 'consolidation', 'fibrosis', 'pleural_thickening', 'no_finding'] # Test on VinDr
+        self.chosen_labels = ['atelectasis', 'cardiomegaly', 'effusion', 'infiltration', 'pneumonia', 'pneumothorax', 'consolidation', 'fibrosis', 'pleural_thickening', 'no_finding'] # Test on VinDr
 
         #### for comparisons #####
-        self.chosen_labels = ['no_finding', 'pneumonia'] # for comparison to VinDr-pcxr
+        # self.chosen_labels = ['no_finding', 'pneumonia'] # for comparison to VinDr-pcxr
         # self.chosen_labels = ['atelectasis', 'cardiomegaly', 'effusion', 'pneumonia', 'pneumothorax', 'consolidation', 'edema', 'no_finding'] # for comparison to chexpert/mimic
         # self.chosen_labels = ['cardiomegaly', 'effusion', 'atelectasis'] # for comparison to UKA
         #### for comparisons #####
