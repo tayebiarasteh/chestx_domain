@@ -2,7 +2,7 @@ Network:
   batch_size: 8 # resnet
 #  batch_size: 1 # ViT
   lr: 5e-5 # mimic/chexpert imagenet
-#  lr: 3e-5 # vindr imagenet
+#  weight_decay: 1e-5
   weight_decay: 0
   amsgrad: False
   num_epochs: 45

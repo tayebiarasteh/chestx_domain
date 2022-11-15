@@ -14,7 +14,6 @@ from torch.nn import BCEWithLogitsLoss
 from torchvision import transforms, models
 import timm
 import numpy as np
-from sklearn import metrics
 
 from config.serde import open_experiment, create_experiment, delete_experiment, write_config
 from Train_Valid_chestx_domain import Training
@@ -98,7 +97,7 @@ def main_train_central_2D(global_config_path="/home/soroosh/Documents/Repositori
         trainer.load_checkpoint(model=model, optimiser=optimizer, loss_function=loss_function, weight=weight, label_names=label_names)
     else:
         trainer.setup_model(model=model, optimiser=optimizer, loss_function=loss_function, weight=weight)
-    trainer.train_epoch(train_loader=train_loader, valid_loader=valid_loader)
+    trainer.train_epoch(train_loader=train_loader, valid_loader=valid_loader, num_epochs=params['Network']['num_epochs'])
 
 
 
