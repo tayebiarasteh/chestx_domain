@@ -27,7 +27,7 @@ warnings.filterwarnings('ignore')
 
 
 def main_train_central_2D(global_config_path="/home/soroosh/Documents/Repositories/chestx/config/config.yaml", valid=False,
-                  resume=False, augment=False, experiment_name='name', dataset_name='vindr', pretrained=False):
+                  resume=False, augment=False, experiment_name='name', dataset_name='vindr', pretrained=False, vit=False):
     """Main function for training + validation centrally
 
         Parameters
@@ -85,8 +85,10 @@ def main_train_central_2D(global_config_path="/home/soroosh/Documents/Repositori
         valid_loader = None
 
     # Changeable network parameters
-    model = load_pretrained_model_1FC(num_classes=len(weight), resnet_num=50, pretrained=pretrained)
-    # model = load_pretrained_timm_model(num_classes=len(weight), model_name='vit_base_patch16_224', pretrained=pretrained)
+    if vit:
+        model = load_pretrained_timm_model(num_classes=len(weight), pretrained=pretrained)
+    else:
+        model = load_pretrained_model_1FC(num_classes=len(weight), resnet_num=50, pretrained=pretrained)
 
     loss_function = BCEWithLogitsLoss
     optimizer = torch.optim.Adam(model.parameters(), lr=float(params['Network']['lr']),
@@ -103,7 +105,7 @@ def main_train_central_2D(global_config_path="/home/soroosh/Documents/Repositori
 
 
 def main_test_central_2D(global_config_path="/home/soroosh/Documents/Repositories/chestx/config/config.yaml", experiment_name='central_exp_for_test',
-                 dataset_name='vindr'):
+                 dataset_name='vindr', vit=False):
     """Main function for multi label prediction
 
     Parameters
@@ -130,8 +132,10 @@ def main_test_central_2D(global_config_path="/home/soroosh/Documents/Repositorie
     label_names = test_dataset.chosen_labels
 
     # Changeable network parameters
-    model = load_pretrained_model_1FC(num_classes=len(weight), resnet_num=50)
-    # model = load_pretrained_timm_model(num_classes=len(weight), model_name='vit_base_patch16_224')
+    if vit:
+        model = load_pretrained_timm_model(num_classes=len(weight))
+    else:
+        model = load_pretrained_model_1FC(num_classes=len(weight), resnet_num=50)
 
     test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=params['Network']['batch_size'],
                                                pin_memory=True, drop_last=False, shuffle=False, num_workers=16)
@@ -238,10 +242,28 @@ def load_pretrained_model_1FC(num_classes=2, resnet_num=34, pretrained=False):
 
 
 
+
+
 def load_pretrained_timm_model(num_classes=2, model_name='vit_base_patch16_224', pretrained=False):
     # Load a pre-trained model from config file
 
     model = timm.create_model(model_name, num_classes=num_classes, img_size=512, pretrained=pretrained)
+
+    # mimic pretraining
+    if pretrained:
+        model_state_dict_list = []
+        for name in model.state_dict():
+            model_state_dict_list.append(name)
+        pretrained_state_dict = model.load_state_dict(torch.load(
+            '/home/soroosh/Documents/Repositories/chestx_domain/mimicpretraining_vit_base_patch16_224_512.pth'))
+        temp_dict_model = {}
+        for weightbias in model_state_dict_list:
+            if 'head' in weightbias:
+                temp_dict_model[weightbias] = model.state_dict()[weightbias]
+            else:
+                temp_dict_model[weightbias] = pretrained_state_dict[weightbias]
+        model.load_state_dict(temp_dict_model)
+
     for param in model.parameters():
         param.requires_grad = True
 
@@ -299,7 +321,7 @@ def main_test_central_2D_with_bootstrapping(global_config_path="/home/soroosh/Do
 
 def main_test_central_2D_pvalue_out_of_bootstrap(global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml",
                                                  experiment_name1='central_exp_for_test', experiment_name2='central_exp_for_test',
-                                                 experiment1_epoch_num=100, experiment2_epoch_num=100, dataset_name='vindr'):
+                                                 experiment1_epoch_num=100, experiment2_epoch_num=100, dataset_name='vindr', vit=False):
     """Main function for multi label prediction
 
     Parameters
@@ -326,8 +348,10 @@ def main_test_central_2D_pvalue_out_of_bootstrap(global_config_path="/home/soroo
     label_names = test_dataset.chosen_labels
 
     # Changeable network parameters
-    model1 = load_pretrained_model_1FC(num_classes=len(weight), resnet_num=50)
-    # model1 = load_pretrained_timm_model(num_classes=len(weight), model_name='vit_base_patch16_224')
+    if vit:
+        model1 = load_pretrained_timm_model(num_classes=len(weight))
+    else:
+        model1 = load_pretrained_model_1FC(num_classes=len(weight), resnet_num=50)
 
     test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=params1['Network']['batch_size'],
                                                pin_memory=True, drop_last=False, shuffle=False, num_workers=16)
@@ -343,8 +367,10 @@ def main_test_central_2D_pvalue_out_of_bootstrap(global_config_path="/home/soroo
     AUC_list1 = predictor1.bootstrapper(pred_array1.cpu().numpy(), target_array1.int().cpu().numpy(), index_list)
 
     # Changeable network parameters
-    model2 = load_pretrained_model_1FC(num_classes=len(weight), resnet_num=50)
-    # model2 = load_pretrained_timm_model(num_classes=len(weight), model_name='vit_base_patch16_224')
+    if vit:
+        model2 = load_pretrained_timm_model(num_classes=len(weight))
+    else:
+        model2 = load_pretrained_model_1FC(num_classes=len(weight), resnet_num=50)
 
     # Initialize prediction 2
     params2 = open_experiment(experiment_name2, global_config_path)
@@ -438,18 +464,13 @@ def main_test_central_2D_pvalue_out_of_bootstrap(global_config_path="/home/soroo
 
 
 if __name__ == '__main__':
-    # delete_experiment(experiment_name='conventional_federated_3sites_vindrfull_1fc_2labelseach_lr5e5_batch12', global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml")
+    delete_experiment(experiment_name='temp', global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml")
 
-    # main_train_central_2D(global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml",
-    #               valid=True, resume=False, augment=True, experiment_name='cxr14_to_compare_with_vindrpediatric_lr3e5_resnet50_imagenet_2labels', dataset_name='cxr14', pretrained=True)
+    main_train_central_2D(global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml",
+                  valid=True, resume=False, augment=True, experiment_name='temp', dataset_name='UKA', pretrained=True, vit=True)
 
-    main_test_central_2D_pvalue_out_of_bootstrap(
-        global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml",
-        experiment_name1='UKA_Teston_vindrmimicchexpertcxr14_lr3e5_decay1e5_resnet50_imagenet_3labels', experiment_name2='vindr_to_compare_with_UKA_lr3e5_decay1e5_resnet50_imagenet_3labels',
-        experiment1_epoch_num=7, experiment2_epoch_num=6, dataset_name='vindr')
-
-    main_test_central_2D_pvalue_out_of_bootstrap(
-        global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml",
-        experiment_name1='UKA_Teston_vindrmimicchexpertcxr14_lr3e5_decay1e5_resnet50_imagenet_3labels', experiment_name2='vindr_to_compare_with_UKA_lr3e5_decay1e5_resnet50_imagenet_3labels',
-        experiment1_epoch_num=7, experiment2_epoch_num=6, dataset_name='UKA')
-
+    # main_test_central_2D_pvalue_out_of_bootstrap(
+    #     global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml",
+    #     experiment_name1='mimic_to_compare_with_UKA_lr3e5_resnet50_imagenet_3labels', experiment_name2='UKA_Teston_vindrmimicchexpertcxr14_lr3e5_decay1e5_resnet50_imagenet_3labels',
+    #     experiment1_epoch_num=6, experiment2_epoch_num=7, dataset_name='UKA', vit=True)
+#
