@@ -27,7 +27,7 @@ warnings.filterwarnings('ignore')
 
 
 def main_train_central_2D(global_config_path="/home/soroosh/Documents/Repositories/chestx/config/config.yaml", valid=False,
-                  resume=False, augment=False, experiment_name='name', dataset_name='vindr', pretrained=False, vit=False):
+                  resume=False, augment=False, experiment_name='name', dataset_name='vindr', pretrained=False, vit=False, size224=False):
     """Main function for training + validation centrally
 
         Parameters
@@ -55,23 +55,23 @@ def main_train_central_2D(global_config_path="/home/soroosh/Documents/Repositori
     cfg_path = params["cfg_path"]
 
     if dataset_name == 'vindr':
-        train_dataset = vindr_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment)
-        valid_dataset = vindr_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False)
+        train_dataset = vindr_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment, size224=size224)
+        valid_dataset = vindr_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False, size224=size224)
     elif dataset_name == 'vindr_pediatric':
-        train_dataset = vindr_pediatric_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment)
-        valid_dataset = vindr_pediatric_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False)
+        train_dataset = vindr_pediatric_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment, size224=size224)
+        valid_dataset = vindr_pediatric_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False, size224=size224)
     elif dataset_name == 'chexpert':
-        train_dataset = chexpert_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment)
-        valid_dataset = chexpert_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False)
+        train_dataset = chexpert_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment, size224=size224)
+        valid_dataset = chexpert_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False, size224=size224)
     elif dataset_name == 'mimic':
-        train_dataset = mimic_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment)
-        valid_dataset = mimic_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False)
+        train_dataset = mimic_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment, size224=size224)
+        valid_dataset = mimic_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False, size224=size224)
     elif dataset_name == 'UKA':
-        train_dataset = UKA_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment)
-        valid_dataset = UKA_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False)
+        train_dataset = UKA_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment, size224=size224)
+        valid_dataset = UKA_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False, size224=size224)
     elif dataset_name == 'cxr14':
-        train_dataset = cxr14_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment)
-        valid_dataset = cxr14_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False)
+        train_dataset = cxr14_data_loader_2D(cfg_path=cfg_path, mode='train', augment=augment, size224=size224)
+        valid_dataset = cxr14_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False, size224=size224)
 
     train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=params['Network']['batch_size'],
                                                pin_memory=True, drop_last=True, shuffle=True, num_workers=10)
@@ -84,9 +84,14 @@ def main_train_central_2D(global_config_path="/home/soroosh/Documents/Repositori
     else:
         valid_loader = None
 
+    if size224:
+        imgsize = 224
+    else:
+        imgsize = 512
+
     # Changeable network parameters
     if vit:
-        model = load_pretrained_timm_model(num_classes=len(weight), pretrained=pretrained)
+        model = load_pretrained_timm_model(num_classes=len(weight), pretrained=pretrained, imgsize=imgsize)
     else:
         model = load_pretrained_model_1FC(num_classes=len(weight), resnet_num=50, pretrained=pretrained)
 
@@ -244,25 +249,25 @@ def load_pretrained_model_1FC(num_classes=2, resnet_num=34, pretrained=False):
 
 
 
-def load_pretrained_timm_model(num_classes=2, model_name='vit_base_patch16_224', pretrained=False):
+def load_pretrained_timm_model(num_classes=2, model_name='vit_base_patch16_224', pretrained=False, imgsize=512):
     # Load a pre-trained model from config file
 
-    model = timm.create_model(model_name, num_classes=num_classes, img_size=512, pretrained=pretrained)
+    model = timm.create_model(model_name, num_classes=num_classes, img_size=imgsize, pretrained=pretrained)
 
     # mimic pretraining
-    if pretrained:
-        model_state_dict_list = []
-        for name in model.state_dict():
-            model_state_dict_list.append(name)
-        pretrained_state_dict = model.load_state_dict(torch.load(
-            '/home/soroosh/Documents/Repositories/chestx_domain/mimicpretraining_vit_base_patch16_224_512.pth'))
-        temp_dict_model = {}
-        for weightbias in model_state_dict_list:
-            if 'head' in weightbias:
-                temp_dict_model[weightbias] = model.state_dict()[weightbias]
-            else:
-                temp_dict_model[weightbias] = pretrained_state_dict[weightbias]
-        model.load_state_dict(temp_dict_model)
+    # if pretrained:
+    #     model_state_dict_list = []
+    #     for name in model.state_dict():
+    #         model_state_dict_list.append(name)
+    #     pretrained_state_dict = model.load_state_dict(torch.load(
+    #         '/home/arasteh/Documents/Repositories/chestx_domain/mimicpretraining_vit_base_patch16_224_512.pth'))
+    #     temp_dict_model = {}
+    #     for weightbias in model_state_dict_list:
+    #         if 'head' in weightbias:
+    #             temp_dict_model[weightbias] = model.state_dict()[weightbias]
+    #         else:
+    #             temp_dict_model[weightbias] = pretrained_state_dict[weightbias]
+    #     model.load_state_dict(temp_dict_model)
 
     for param in model.parameters():
         param.requires_grad = True

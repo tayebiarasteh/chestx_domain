@@ -350,7 +350,7 @@ class mimic_data_loader_2D(Dataset):
     """
     This is the pipeline based on Pytorch's Dataset and Dataloader
     """
-    def __init__(self, cfg_path, mode='train', augment=False):
+    def __init__(self, cfg_path, mode='train', augment=False, size224=False):
         """
         Parameters
         ----------
@@ -365,6 +365,7 @@ class mimic_data_loader_2D(Dataset):
 
         self.cfg_path = cfg_path
         self.params = read_config(cfg_path)
+        self.size224 = size224
         self.augment = augment
         self.file_base_dir = self.params['file_path']
         self.file_base_dir = os.path.join(self.file_base_dir, "MIMIC")
@@ -386,10 +387,10 @@ class mimic_data_loader_2D(Dataset):
         # self.chosen_labels = ['atelectasis', 'cardiomegaly', 'consolidation', 'lung_opacity', 'pleural_effusion', 'pneumothorax', 'pneumonia', 'no_finding'] # Test on VinDr
         # self.chosen_labels = ['atelectasis', 'cardiomegaly', 'pleural_effusion', 'pneumonia', 'pneumothorax', 'consolidation', 'edema', 'no_finding'] # Test on CXR14
         # self.chosen_labels = ['no_finding', 'pneumonia'] # Test on VinDr-pcxr
-        # self.chosen_labels = ['atelectasis', 'cardiomegaly', 'consolidation', 'edema', 'enlarged_cardiomediastinum', 'fracture', 'lung_lesion', 'lung_opacity', 'no_finding', 'pleural_effusion', 'pleural_other', 'pneumonia', 'pneumothorax', 'support_devices'] # Test on chexpert / for comparison to chexpert
+        self.chosen_labels = ['atelectasis', 'cardiomegaly', 'consolidation', 'edema', 'enlarged_cardiomediastinum', 'fracture', 'lung_lesion', 'lung_opacity', 'no_finding', 'pleural_effusion', 'pleural_other', 'pneumonia', 'pneumothorax', 'support_devices'] # Test on chexpert / for comparison to chexpert
 
         #### for comparisons #####
-        self.chosen_labels = ['cardiomegaly', 'pleural_effusion', 'atelectasis'] # for comparison to UKA
+        # self.chosen_labels = ['cardiomegaly', 'pleural_effusion', 'atelectasis'] # for comparison to UKA
         #### for comparisons #####
 
 
@@ -411,7 +412,11 @@ class mimic_data_loader_2D(Dataset):
         label: torch tensor
         """
         img_path = os.path.join(self.file_base_dir, self.file_path_list[idx])
-        img_path = img_path.replace("/files/", "/preprocessed/")
+
+        if self.size224:
+            img_path = img_path.replace("/files/", "/preprocessed224/")
+        else:
+            img_path = img_path.replace("/files/", "/preprocessed/")
         img = cv2.imread(img_path) # (h, w, d)
 
         if self.augment:
@@ -459,7 +464,7 @@ class UKA_data_loader_2D(Dataset):
     """
     This is the pipeline based on Pytorch's Dataset and Dataloader
     """
-    def __init__(self, cfg_path, mode='train', augment=False):
+    def __init__(self, cfg_path, mode='train', augment=False, size224=False):
         """
         Parameters
         ----------
@@ -486,7 +491,11 @@ class UKA_data_loader_2D(Dataset):
         elif mode == 'test':
             self.subset_df = self.org_df[self.org_df['split'] == 'test']
 
-        self.file_base_dir = os.path.join(self.file_base_dir, 'UKA_preprocessed')
+        if size224:
+            self.file_base_dir = os.path.join(self.file_base_dir, 'UKA_preprocessed224')
+        else:
+            self.file_base_dir = os.path.join(self.file_base_dir, 'UKA_preprocessed')
+
         self.file_path_list = list(self.subset_df['image_id'])
 
         self.chosen_labels = ['cardiomegaly', 'pleural_effusion', 'atelectasis'] # Test on vindr/mimic/chexpert/cxr14
@@ -591,7 +600,7 @@ class cxr14_data_loader_2D(Dataset):
     """
     This is the pipeline based on Pytorch's Dataset and Dataloader
     """
-    def __init__(self, cfg_path, mode='train', augment=False):
+    def __init__(self, cfg_path, mode='train', augment=False, size224=False):
         """
         Parameters
         ----------
@@ -610,7 +619,11 @@ class cxr14_data_loader_2D(Dataset):
         self.file_base_dir = self.params['file_path']
         self.file_base_dir = os.path.join(self.file_base_dir, 'NIH_ChestX-ray14')
         self.org_df = pd.read_csv(os.path.join(self.file_base_dir, "final_cxr14_master_list.csv"), sep=',')
-        self.file_base_dir = os.path.join(self.file_base_dir, 'CXR14', 'preprocessed')
+
+        if size224:
+            self.file_base_dir = os.path.join(self.file_base_dir, 'CXR14', 'preprocessed224')
+        else:
+            self.file_base_dir = os.path.join(self.file_base_dir, 'CXR14', 'preprocessed')
 
         if mode == 'train':
             self.subset_df = self.org_df[self.org_df['split'] == 'train']
