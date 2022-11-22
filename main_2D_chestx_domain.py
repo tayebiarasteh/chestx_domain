@@ -14,6 +14,7 @@ from torch.nn import BCEWithLogitsLoss
 from torchvision import transforms, models
 import timm
 import numpy as np
+from sklearn import metrics
 
 from config.serde import open_experiment, create_experiment, delete_experiment, write_config
 from Train_Valid_chestx_domain import Training
@@ -96,8 +97,14 @@ def main_train_central_2D(global_config_path="/home/soroosh/Documents/Repositori
         model = load_pretrained_model_1FC(num_classes=len(weight), resnet_num=50, pretrained=pretrained)
 
     loss_function = BCEWithLogitsLoss
-    optimizer = torch.optim.Adam(model.parameters(), lr=float(params['Network']['lr']),
-                                 weight_decay=float(params['Network']['weight_decay']), amsgrad=params['Network']['amsgrad'])
+
+    if vit:
+        optimizer = torch.optim.AdamW(model.parameters(), lr=float(params['Network']['lr']),
+                                      weight_decay=float(params['Network']['weight_decay']))
+    else:
+        optimizer = torch.optim.Adam(model.parameters(), lr=float(params['Network']['lr']),
+                                     weight_decay=float(params['Network']['weight_decay']),
+                                     amsgrad=params['Network']['amsgrad'])
 
     trainer = Training(cfg_path, resume=resume, label_names=label_names)
     if resume == True:
@@ -110,7 +117,7 @@ def main_train_central_2D(global_config_path="/home/soroosh/Documents/Repositori
 
 
 def main_test_central_2D(global_config_path="/home/soroosh/Documents/Repositories/chestx/config/config.yaml", experiment_name='central_exp_for_test',
-                 dataset_name='vindr', vit=False):
+                 dataset_name='vindr'):
     """Main function for multi label prediction
 
     Parameters
@@ -137,10 +144,8 @@ def main_test_central_2D(global_config_path="/home/soroosh/Documents/Repositorie
     label_names = test_dataset.chosen_labels
 
     # Changeable network parameters
-    if vit:
-        model = load_pretrained_timm_model(num_classes=len(weight))
-    else:
-        model = load_pretrained_model_1FC(num_classes=len(weight), resnet_num=50)
+    model = load_pretrained_model_1FC(num_classes=len(weight), resnet_num=50)
+    # model = load_pretrained_timm_model(num_classes=len(weight), model_name='vit_base_patch16_224')
 
     test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=params['Network']['batch_size'],
                                                pin_memory=True, drop_last=False, shuffle=False, num_workers=16)
@@ -223,8 +228,6 @@ def main_test_central_2D(global_config_path="/home/soroosh/Documents/Repositorie
 
 
 
-
-
 def load_pretrained_model_1FC(num_classes=2, resnet_num=34, pretrained=False):
     # Load a pre-trained model from config file
 
@@ -246,28 +249,10 @@ def load_pretrained_model_1FC(num_classes=2, resnet_num=34, pretrained=False):
     return model
 
 
-
-
-
 def load_pretrained_timm_model(num_classes=2, model_name='vit_base_patch16_224', pretrained=False, imgsize=512):
     # Load a pre-trained model from config file
 
     model = timm.create_model(model_name, num_classes=num_classes, img_size=imgsize, pretrained=pretrained)
-
-    # mimic pretraining
-    # if pretrained:
-    #     model_state_dict_list = []
-    #     for name in model.state_dict():
-    #         model_state_dict_list.append(name)
-    #     pretrained_state_dict = model.load_state_dict(torch.load(
-    #         '/home/arasteh/Documents/Repositories/chestx_domain/mimicpretraining_vit_base_patch16_224_512.pth'))
-    #     temp_dict_model = {}
-    #     for weightbias in model_state_dict_list:
-    #         if 'head' in weightbias:
-    #             temp_dict_model[weightbias] = model.state_dict()[weightbias]
-    #         else:
-    #             temp_dict_model[weightbias] = pretrained_state_dict[weightbias]
-    #     model.load_state_dict(temp_dict_model)
 
     for param in model.parameters():
         param.requires_grad = True
@@ -276,57 +261,9 @@ def load_pretrained_timm_model(num_classes=2, model_name='vit_base_patch16_224',
 
 
 
-
-def main_test_central_2D_with_bootstrapping(global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml", experiment_name='central_exp_for_test',
-                 dataset_name='vindr', epoch_num=100):
-    """Main function for multi label prediction
-
-    Parameters
-    ----------
-    experiment_name: str
-        name of the experiment to be loaded.
-    """
-    params = open_experiment(experiment_name, global_config_path)
-    cfg_path = params['cfg_path']
-
-    if dataset_name == 'vindr':
-        test_dataset = vindr_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False)
-    elif dataset_name == 'vindr_pediatric':
-        test_dataset = vindr_pediatric_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False)
-    elif dataset_name == 'chexpert':
-        test_dataset = chexpert_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False)
-    elif dataset_name == 'mimic':
-        test_dataset = mimic_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False)
-    elif dataset_name == 'UKA':
-        test_dataset = UKA_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False)
-    elif dataset_name == 'cxr14':
-        test_dataset = cxr14_data_loader_2D(cfg_path=cfg_path, mode='test', augment=False)
-    weight = test_dataset.pos_weight()
-    label_names = test_dataset.chosen_labels
-
-    # Changeable network parameters
-    model = load_pretrained_model_1FC(num_classes=len(weight), resnet_num=50)
-    # model = load_pretrained_timm_model(num_classes=len(weight), model_name='vit_base_patch16_224')
-
-    test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=params['Network']['batch_size'],
-                                               pin_memory=True, drop_last=False, shuffle=False, num_workers=16)
-
-    index_list = []
-    for counter in range(1000):
-        index_list.append(np.random.choice(len(test_dataset), len(test_dataset)))
-
-    # Initialize prediction
-    predictor = Prediction(cfg_path, label_names)
-    predictor.setup_model(model=model, epoch_num=epoch_num)
-    pred_array, target_array = predictor.predict_only(test_loader)
-
-    AUC_list = predictor.bootstrapper(pred_array.cpu().numpy(), target_array.int().cpu().numpy(), index_list)
-
-
-
 def main_test_central_2D_pvalue_out_of_bootstrap(global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml",
                                                  experiment_name1='central_exp_for_test', experiment_name2='central_exp_for_test',
-                                                 experiment1_epoch_num=100, experiment2_epoch_num=100, dataset_name='vindr', vit=False):
+                                                 experiment1_epoch_num=100, experiment2_epoch_num=100, dataset_name='vindr', vit=False, size224=False):
     """Main function for multi label prediction
 
     Parameters
@@ -338,23 +275,28 @@ def main_test_central_2D_pvalue_out_of_bootstrap(global_config_path="/home/soroo
     cfg_path1 = params1['cfg_path']
 
     if dataset_name == 'vindr':
-        test_dataset = vindr_data_loader_2D(cfg_path=cfg_path1, mode='test', augment=False)
+        test_dataset = vindr_data_loader_2D(cfg_path=cfg_path1, mode='test', augment=False, size224=size224)
     elif dataset_name == 'vindr_pediatric':
-        test_dataset = vindr_pediatric_data_loader_2D(cfg_path=cfg_path1, mode='test', augment=False)
+        test_dataset = vindr_pediatric_data_loader_2D(cfg_path=cfg_path1, mode='test', augment=False, size224=size224)
     elif dataset_name == 'chexpert':
-        test_dataset = chexpert_data_loader_2D(cfg_path=cfg_path1, mode='test', augment=False)
+        test_dataset = chexpert_data_loader_2D(cfg_path=cfg_path1, mode='test', augment=False, size224=size224)
     elif dataset_name == 'mimic':
-        test_dataset = mimic_data_loader_2D(cfg_path=cfg_path1, mode='test', augment=False)
+        test_dataset = mimic_data_loader_2D(cfg_path=cfg_path1, mode='test', augment=False, size224=size224)
     elif dataset_name == 'UKA':
-        test_dataset = UKA_data_loader_2D(cfg_path=cfg_path1, mode='test', augment=False)
+        test_dataset = UKA_data_loader_2D(cfg_path=cfg_path1, mode='test', augment=False, size224=size224)
     elif dataset_name == 'cxr14':
-        test_dataset = cxr14_data_loader_2D(cfg_path=cfg_path1, mode='test', augment=False)
+        test_dataset = cxr14_data_loader_2D(cfg_path=cfg_path1, mode='test', augment=False, size224=size224)
     weight = test_dataset.pos_weight()
     label_names = test_dataset.chosen_labels
 
+    if size224:
+        imgsize = 224
+    else:
+        imgsize = 512
+
     # Changeable network parameters
     if vit:
-        model1 = load_pretrained_timm_model(num_classes=len(weight))
+        model1 = load_pretrained_timm_model(num_classes=len(weight), imgsize=imgsize)
     else:
         model1 = load_pretrained_model_1FC(num_classes=len(weight), resnet_num=50)
 
@@ -373,7 +315,7 @@ def main_test_central_2D_pvalue_out_of_bootstrap(global_config_path="/home/soroo
 
     # Changeable network parameters
     if vit:
-        model2 = load_pretrained_timm_model(num_classes=len(weight))
+        model2 = load_pretrained_timm_model(num_classes=len(weight), imgsize=imgsize)
     else:
         model2 = load_pretrained_model_1FC(num_classes=len(weight), resnet_num=50)
 
@@ -466,16 +408,9 @@ def main_test_central_2D_pvalue_out_of_bootstrap(global_config_path="/home/soroo
 
 
 
-
-
 if __name__ == '__main__':
-    delete_experiment(experiment_name='temp', global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml")
+    # delete_experiment(experiment_name='temp', global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml")
 
     main_train_central_2D(global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml",
-                  valid=True, resume=False, augment=True, experiment_name='temp', dataset_name='UKA', pretrained=True, vit=True)
-
-    # main_test_central_2D_pvalue_out_of_bootstrap(
-    #     global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml",
-    #     experiment_name1='mimic_to_compare_with_UKA_lr3e5_resnet50_imagenet_3labels', experiment_name2='UKA_Teston_vindrmimicchexpertcxr14_lr3e5_decay1e5_resnet50_imagenet_3labels',
-    #     experiment1_epoch_num=6, experiment2_epoch_num=7, dataset_name='UKA', vit=True)
-#
+                  valid=True, resume=True, augment=True, experiment_name='temp',
+                          dataset_name='UKA', pretrained=True, vit=True, size224=True)
