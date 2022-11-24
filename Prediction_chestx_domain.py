@@ -233,7 +233,7 @@ class Prediction:
             plt.show()
 
 
-    def bootstrapper(self, preds_with_sigmoid, targets, index_list):
+    def bootstrapper(self, preds_with_sigmoid, targets, index_list, testsetname):
         self.model.eval()
         AUC_list = []
         accuracy_list = []
@@ -349,45 +349,45 @@ class Prediction:
               f' | avg specificity: {specificity_list.mean():.2f} ± {specificity_list.std():.2f}' \
               f' | avg recall (sensitivity): {sensitivity_list.mean():.2f} ± {sensitivity_list.std():.2f} | avg F1: {F1_list.mean():.2f} ± {F1_list.std():.2f}\n\n'
 
-        with open(os.path.join(self.params['target_dir'], self.params['stat_log_path']) + '/test_Stats', 'a') as f:
+        with open(os.path.join(self.params['target_dir'], self.params['stat_log_path']) + '/Test_on_' + str(testsetname), 'a') as f:
             f.write(msg)
 
         msg = f'Individual AUROC:\n'
-        with open(os.path.join(self.params['target_dir'], self.params['stat_log_path']) + '/test_Stats', 'a') as f:
+        with open(os.path.join(self.params['target_dir'], self.params['stat_log_path']) + '/Test_on_' + str(testsetname), 'a') as f:
             f.write(msg)
         for idx, pathology in enumerate(self.label_names):
             msg = f'{pathology}: {AUC_list[:, idx].mean():.2f} ± {AUC_list[:, idx].std():.2f} | '
-            with open(os.path.join(self.params['target_dir'], self.params['stat_log_path']) + '/test_Stats', 'a') as f:
+            with open(os.path.join(self.params['target_dir'], self.params['stat_log_path']) + '/Test_on_' + str(testsetname), 'a') as f:
                 f.write(msg)
 
         msg = f'\n\nIndividual accuracy:\n'
-        with open(os.path.join(self.params['target_dir'], self.params['stat_log_path']) + '/test_Stats', 'a') as f:
+        with open(os.path.join(self.params['target_dir'], self.params['stat_log_path']) + '/Test_on_' + str(testsetname), 'a') as f:
             f.write(msg)
         for idx, pathology in enumerate(self.label_names):
             msg = f'{pathology}: {accuracy_list[:, idx].mean():.2f} ± {accuracy_list[:, idx].std():.2f} | '
-            with open(os.path.join(self.params['target_dir'], self.params['stat_log_path']) + '/test_Stats', 'a') as f:
+            with open(os.path.join(self.params['target_dir'], self.params['stat_log_path']) + '/Test_on_' + str(testsetname), 'a') as f:
                 f.write(msg)
 
         msg = f'\n\nIndividual sensitivity:\n'
-        with open(os.path.join(self.params['target_dir'], self.params['stat_log_path']) + '/test_Stats', 'a') as f:
+        with open(os.path.join(self.params['target_dir'], self.params['stat_log_path']) + '/Test_on_' + str(testsetname), 'a') as f:
             f.write(msg)
         for idx, pathology in enumerate(self.label_names):
             msg = f'{pathology}: {sensitivity_list[:, idx].mean():.2f} ± {sensitivity_list[:, idx].std():.2f} | '
-            with open(os.path.join(self.params['target_dir'], self.params['stat_log_path']) + '/test_Stats', 'a') as f:
+            with open(os.path.join(self.params['target_dir'], self.params['stat_log_path']) + '/Test_on_' + str(testsetname), 'a') as f:
                 f.write(msg)
 
         msg = f'\n\nIndividual specificity:\n'
-        with open(os.path.join(self.params['target_dir'], self.params['stat_log_path']) + '/test_Stats', 'a') as f:
+        with open(os.path.join(self.params['target_dir'], self.params['stat_log_path']) + '/Test_on_' + str(testsetname), 'a') as f:
             f.write(msg)
         for idx, pathology in enumerate(self.label_names):
             msg = f'{pathology}: {specificity_list[:, idx].mean():.2f} ± {specificity_list[:, idx].std():.2f} | '
-            with open(os.path.join(self.params['target_dir'], self.params['stat_log_path']) + '/test_Stats', 'a') as f:
+            with open(os.path.join(self.params['target_dir'], self.params['stat_log_path']) + '/Test_on_' + str(testsetname), 'a') as f:
                 f.write(msg)
 
         df = pd.DataFrame(AUC_list.mean(1), columns=['AUC_mean'])
         for idx in range(AUC_list.shape[-1]):
             df.insert(idx + 1, 'AUC_' + str(idx + 1), AUC_list[:, idx])
 
-        df.to_csv(os.path.join(self.params['target_dir'], self.params['stat_log_path']) + '/bootstrapped_AUC_results.csv', sep=',', index=False)
+        df.to_csv(os.path.join(self.params['target_dir'], self.params['stat_log_path']) + '/bootstrapped_AUC_Test_on' + str(testsetname) + '.csv', sep=',', index=False)
 
         return AUC_list

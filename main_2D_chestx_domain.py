@@ -311,7 +311,7 @@ def main_test_central_2D_pvalue_out_of_bootstrap(global_config_path="/home/soroo
     predictor1 = Prediction(cfg_path1, label_names)
     predictor1.setup_model(model=model1, epoch_num=experiment1_epoch_num)
     pred_array1, target_array1 = predictor1.predict_only(test_loader)
-    AUC_list1 = predictor1.bootstrapper(pred_array1.cpu().numpy(), target_array1.int().cpu().numpy(), index_list)
+    AUC_list1 = predictor1.bootstrapper(pred_array1.cpu().numpy(), target_array1.int().cpu().numpy(), index_list, dataset_name)
 
     # Changeable network parameters
     if vit:
@@ -325,7 +325,7 @@ def main_test_central_2D_pvalue_out_of_bootstrap(global_config_path="/home/soroo
     predictor2 = Prediction(cfg_path2, label_names)
     predictor2.setup_model(model=model2, epoch_num=experiment2_epoch_num)
     pred_array2, target_array2 = predictor2.predict_only(test_loader)
-    AUC_list2 = predictor2.bootstrapper(pred_array2.cpu().numpy(), target_array2.int().cpu().numpy(), index_list)
+    AUC_list2 = predictor2.bootstrapper(pred_array2.cpu().numpy(), target_array2.int().cpu().numpy(), index_list, dataset_name)
 
     print('individual labels p-values:\n')
     for idx, pathology in enumerate(label_names):
@@ -358,9 +358,9 @@ def main_test_central_2D_pvalue_out_of_bootstrap(global_config_path="/home/soroo
 
 
     msg = f'\n\nindividual labels p-values:\n'
-    with open(os.path.join(params1['target_dir'], params1['stat_log_path']) + '/test_Stats', 'a') as f:
+    with open(os.path.join(params1['target_dir'], params1['stat_log_path']) + '/Test_on_' + str(dataset_name), 'a') as f:
         f.write(msg)
-    with open(os.path.join(params2['target_dir'], params2['stat_log_path']) + '/test_Stats', 'a') as f:
+    with open(os.path.join(params2['target_dir'], params2['stat_log_path']) + '/Test_on_' + str(dataset_name), 'a') as f:
         f.write(msg)
     for idx, pathology in enumerate(label_names):
         counter = AUC_list1[:, idx] > AUC_list2[:, idx]
@@ -375,16 +375,16 @@ def main_test_central_2D_pvalue_out_of_bootstrap(global_config_path="/home/soroo
             else:
                 msg = f'\t{pathology} p-value: {ratio1}; models NOT significantly different for this label'
 
-        with open(os.path.join(params1['target_dir'], params1['stat_log_path']) + '/test_Stats', 'a') as f:
+        with open(os.path.join(params1['target_dir'], params1['stat_log_path']) + '/Test_on_' + str(dataset_name), 'a') as f:
             f.write(msg)
-        with open(os.path.join(params2['target_dir'], params2['stat_log_path']) + '/test_Stats', 'a') as f:
+        with open(os.path.join(params2['target_dir'], params2['stat_log_path']) + '/Test_on_' + str(dataset_name), 'a') as f:
             f.write(msg)
 
 
     msg = f'\n\nAvg AUC of labels p-values:\n'
-    with open(os.path.join(params1['target_dir'], params1['stat_log_path']) + '/test_Stats', 'a') as f:
+    with open(os.path.join(params1['target_dir'], params1['stat_log_path']) + '/Test_on_' + str(dataset_name), 'a') as f:
         f.write(msg)
-    with open(os.path.join(params2['target_dir'], params2['stat_log_path']) + '/test_Stats', 'a') as f:
+    with open(os.path.join(params2['target_dir'], params2['stat_log_path']) + '/Test_on_' + str(dataset_name), 'a') as f:
         f.write(msg)
     avgAUC_list1 = AUC_list1.mean(1)
     avgAUC_list2 = AUC_list2.mean(1)
@@ -400,9 +400,9 @@ def main_test_central_2D_pvalue_out_of_bootstrap(global_config_path="/home/soroo
         else:
             msg = f'\tp-value: {ratio1}; models NOT significantly different on average for all labels'
 
-    with open(os.path.join(params1['target_dir'], params1['stat_log_path']) + '/test_Stats', 'a') as f:
+    with open(os.path.join(params1['target_dir'], params1['stat_log_path']) + '/Test_on_' + str(dataset_name), 'a') as f:
         f.write(msg)
-    with open(os.path.join(params2['target_dir'], params2['stat_log_path']) + '/test_Stats', 'a') as f:
+    with open(os.path.join(params2['target_dir'], params2['stat_log_path']) + '/Test_on_' + str(dataset_name), 'a') as f:
         f.write(msg)
 
 
@@ -414,3 +414,15 @@ if __name__ == '__main__':
     main_train_central_2D(global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml",
                   valid=True, resume=True, augment=True, experiment_name='temp',
                           dataset_name='UKA', pretrained=True, vit=True, size224=True)
+
+    main_test_central_2D_pvalue_out_of_bootstrap(
+        global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml",
+        experiment_name1='UKA_to_Testonall_lr3e5_decay1e5_resnet50_imagenet_size224_3labels',
+        experiment_name2='cxr14_TestonUKA_resnet50_lr3e5_size224_3labels',
+        experiment1_epoch_num=6, experiment2_epoch_num=6, dataset_name='UKA', vit=False, size224=True)
+
+    main_test_central_2D_pvalue_out_of_bootstrap(
+        global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml",
+        experiment_name1='UKA_to_Testonall_lr3e5_decay1e5_resnet50_imagenet_size224_3labels',
+        experiment_name2='cxr14_TestonUKA_resnet50_lr3e5_size224_3labels',
+        experiment1_epoch_num=6, experiment2_epoch_num=6, dataset_name='cxr14', vit=False, size224=True)
