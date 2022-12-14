@@ -269,14 +269,6 @@ class Prediction:
                 optimal_idx = np.argmax(tpr - fpr)
                 optimal_threshold[idx] = thresholds[optimal_idx]
 
-                # metrics.RocCurveDisplay(fpr=fpr, tpr=tpr).plot()
-                # plt.annotate('working point', xy=(fpr[optimal_idx], tpr[optimal_idx]), xycoords='data',
-                #              arrowprops=dict(facecolor='red'))
-                # plt.grid()
-                # plt.title(self.label_names[idx] + f' | threshold: {optimal_threshold[idx]:.4f}')
-                # plt.savefig(os.path.join(self.params['target_dir'], self.params['stat_log_path'],
-                #                          self.label_names[idx] + '.png'))
-
             predicted_labels = (final_preds_with_sigmoid > optimal_threshold).astype(np.int32)
 
             # Metrics calculation (macro) over the whole set
