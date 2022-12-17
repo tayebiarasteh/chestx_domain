@@ -467,20 +467,20 @@ def main_test_pneumonia_all_central_2D_bootstrap(global_config_path="/home/soroo
 
 
 if __name__ == '__main__':
-    # delete_experiment(experiment_name='temp', global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml")
+    delete_experiment(experiment_name='temp', global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml")
 
     main_train_central_2D(global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml",
                   valid=True, resume=False, augment=True, experiment_name='temp',
-                          dataset_name='padchest', pretrained=True, vit=True, size224=True)
+                          dataset_name='padchest', pretrained=True, vit=False, size224=True)
 
-    main_test_central_2D_pvalue_out_of_bootstrap(
-        global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml",
-        experiment_name1='UKA_to_Testonall_lr3e5_decay1e5_resnet50_imagenet_size224_3labels',
-        experiment_name2='cxr14_TestonUKA_resnet50_lr3e5_size224_3labels',
-        experiment1_epoch_num=6, experiment2_epoch_num=6, dataset_name='UKA', vit=False, size224=True)
-
-    main_test_central_2D_pvalue_out_of_bootstrap(
-        global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml",
-        experiment_name1='UKA_to_Testonall_lr3e5_decay1e5_resnet50_imagenet_size224_3labels',
-        experiment_name2='cxr14_TestonUKA_resnet50_lr3e5_size224_3labels',
-        experiment1_epoch_num=6, experiment2_epoch_num=6, dataset_name='cxr14', vit=False, size224=True)
+    # main_test_central_2D_pvalue_out_of_bootstrap(
+    #     global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml",
+    #     experiment_name1='UKA_to_Testonall_lr3e5_decay1e5_resnet50_imagenet_size224_3labels',
+    #     experiment_name2='cxr14_TestonUKA_resnet50_lr3e5_size224_3labels',
+    #     experiment1_epoch_num=6, experiment2_epoch_num=6, dataset_name='UKA', vit=False, size224=True)
+    #
+    # main_test_central_2D_pvalue_out_of_bootstrap(
+    #     global_config_path="/home/soroosh/Documents/Repositories/chestx_domain/config/config.yaml",
+    #     experiment_name1='UKA_to_Testonall_lr3e5_decay1e5_resnet50_imagenet_size224_3labels',
+    #     experiment_name2='cxr14_TestonUKA_resnet50_lr3e5_size224_3labels',
+    #     experiment1_epoch_num=6, experiment2_epoch_num=6, dataset_name='cxr14', vit=False, size224=True)

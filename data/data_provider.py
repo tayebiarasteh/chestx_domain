@@ -76,10 +76,10 @@ class vindr_data_loader_2D(Dataset):
         # self.chosen_labels = ['Atelectasis', 'Cardiomegaly', 'Consolidation', 'Lung Opacity', 'Pleural effusion', 'Pneumothorax', 'Pneumonia', 'No finding'] # for comparison to chexpert/mimic
         # self.chosen_labels = ['Atelectasis', 'Cardiomegaly', 'Pleural effusion', 'Infiltration', 'Pneumonia', 'Pneumothorax', 'Consolidation', 'Pulmonary fibrosis', 'Pleural thickening', 'No finding'] # for comparison to CXR14
         # self.chosen_labels = ['Cardiomegaly', 'Pleural effusion', 'Atelectasis'] # for comparison to UKA
-        # self.chosen_labels = ['No finding', 'Cardiomegaly', 'Pleural effusion', 'Pneumonia', 'Atelectasis', 'Consolidation', 'Pleural thickening', 'COPD_signs', 'Pulmonary fibrosis', 'Emphysema', 'Nodule/Mass', 'Infiltration] # for comparison to padchest
+        self.chosen_labels = ['No finding', 'Cardiomegaly', 'Pleural effusion', 'Pneumonia', 'Atelectasis', 'Consolidation', 'Pleural thickening', 'COPD', 'Pulmonary fibrosis', 'Emphysema', 'Nodule/Mass', 'Infiltration'] # for comparison to padchest
         #### for comparisons #####
 
-        self.chosen_labels = ['Pneumonia', 'Pneumonia'] # for Pneumonia
+        # self.chosen_labels = ['Pneumonia', 'Pneumonia'] # for Pneumonia
 
 
 
@@ -667,10 +667,10 @@ class cxr14_data_loader_2D(Dataset):
         # self.chosen_labels = ['no_finding', 'pneumonia'] # for comparison to VinDr-pcxr
         # self.chosen_labels = ['atelectasis', 'cardiomegaly', 'effusion', 'pneumonia', 'pneumothorax', 'consolidation', 'edema', 'no_finding'] # for comparison to chexpert/mimic
         # self.chosen_labels = ['cardiomegaly', 'effusion', 'atelectasis'] # for comparison to UKA
-        # self.chosen_labels = ['cardiomegaly', 'effusion', 'atelectasis', 'infiltration', 'no_finding', 'pneumonia', 'fibrosis', 'emphysema', 'hernia, 'pleural_thickening', 'consolidation'] # for comparison to padchest
+        self.chosen_labels = ['cardiomegaly', 'effusion', 'atelectasis', 'infiltration', 'no_finding', 'pneumonia', 'fibrosis', 'emphysema', 'hernia', 'pleural_thickening', 'consolidation'] # for comparison to padchest
         #### for comparisons #####
 
-        self.chosen_labels = ['pneumonia', 'pneumonia'] # for Pneumonia
+        # self.chosen_labels = ['pneumonia', 'pneumonia'] # for Pneumonia
 
 
 
@@ -774,13 +774,13 @@ class padchest_data_loader_2D(Dataset):
 
         #### for comparisons #####
         # self.chosen_labels = ['no_finding', 'pneumonia'] # for comparison to VinDr-pcxr
-        # self.chosen_labels = ['no_finding', 'cardiomegaly', 'pleural_effusion', 'pneumonia', 'atelectasis', 'consolidation', 'pleural_thickening', 'COPD_signs', 'pulmonary_fibrosis', 'emphysema', 'nodule_mass', 'infiltrates] # for comparison to VinDr-cxr
+        self.chosen_labels = ['no_finding', 'cardiomegaly', 'pleural_effusion', 'pneumonia', 'atelectasis', 'consolidation', 'pleural_thickening', 'COPD_signs', 'pulmonary_fibrosis', 'emphysema', 'nodule_mass', 'infiltrates'] # for comparison to VinDr-cxr
         # self.chosen_labels = ['cardiomegaly', 'pleural_effusion', 'atelectasis'] # for comparison to UKA
         # self.chosen_labels = ['cardiomegaly', 'pleural_effusion', 'atelectasis', 'infiltrates', 'no_finding', 'pneumonia', 'pulmonary_fibrosis', 'emphysema', 'hernia, 'pleural_thickening', 'consolidation'] # for comparison to cxr14
         # self.chosen_labels = ['cardiomegaly', 'pleural_effusion', 'atelectasis', 'no_finding', 'pneumonia', 'consolidation'] # for comparison to mimic/chexpert
         #### for comparisons #####
 
-        self.chosen_labels = ['pneumonia', 'pneumonia'] # for Pneumonia
+        # self.chosen_labels = ['pneumonia', 'pneumonia'] # for Pneumonia
 
 
     def __len__(self):
@@ -800,7 +800,7 @@ class padchest_data_loader_2D(Dataset):
         label: torch tensor
         """
         subset = self.subset_df[self.subset_df['ImageID'] == self.file_path_list[idx]]['ImageDir'].values[0]
-        img = cv2.imread(os.path.join(self.file_base_dir, subset, self.file_path_list[idx])) # (h, w, d)
+        img = cv2.imread(os.path.join(self.file_base_dir, str(subset), self.file_path_list[idx])) # (h, w, d)
 
         if self.augment:
             trans = transforms.Compose([transforms.ToPILImage(), transforms.RandomHorizontalFlip(p=0.5),
@@ -809,7 +809,7 @@ class padchest_data_loader_2D(Dataset):
             trans = transforms.Compose([transforms.ToPILImage(), transforms.ToTensor()])
         img = trans(img)
 
-        label_df = self.subset_df[self.subset_df['img_rel_path'] == self.file_path_list[idx]]
+        label_df = self.subset_df[self.subset_df['ImageID'] == self.file_path_list[idx]]
         label = torch.zeros((len(self.chosen_labels)))  # (h,)
 
         for idx in range(len(self.chosen_labels)):
