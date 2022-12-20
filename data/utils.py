@@ -15,14 +15,25 @@ import pandas as pd
 
 
 def main_resnet():
+    # order: vindr, vindr-pediatric, cxr14, chexpert, mimic, UKA, padchest
 
-    auc_list = np.array([[0.90, 0.71, 0.68, 0.65, 0.68, 0.63, 0.74],
-                         [0.88, 0.81, 0.76, 0.76, 0.71, 0.61, 0.85],
-                         [0.87, 0.75, 0.80, 0.77, 0.69, 0.62, 0.84],
-                         [0.83, 0.77, 0.74, 0.77, 0.63, 0.58, 0.81],
-                         [0.88, 0.76, 0.72, 0.69, 0.88, 0.00, 0.82],
-                         [0.75, 0.66, 0.66, 0.62, 0.00, 0.75, 0.67],
-                         [0.86, 0.77, 0.75, 0.73, 0.67, 0.59, 0.87]])
+    # order:
+
+    # vindr,
+    # vindr-pediatric
+    # cxr14,
+    # chexpert,
+    # mimic,
+    # UKA,
+    # padchest
+
+    auc_list = np.array([[0.90, 0.63, 0.65, 0.68, 0.71, 0.69, 0.74],
+                         [0.75, 0.76, 0.62, 0.66, 0.66, 0.00, 0.67],
+                         [0.83, 0.61, 0.77, 0.74, 0.77, 0.65, 0.81],
+                         [0.87, 0.59, 0.77, 0.80, 0.75, 0.69, 0.84],
+                         [0.88, 0.64, 0.76, 0.76, 0.81, 0.70, 0.85],
+                         [0.88, 0.00, 0.69, 0.72, 0.76, 0.88, 0.82],
+                         [0.86, 0.59, 0.73, 0.75, 0.77, 0.67, 0.87]])
 
     ############ random placeholders below #############
     D = 28
@@ -41,11 +52,11 @@ def main_resnet():
 
     sns.heatmap(auc_list, vmin=0.55, vmax=1, annot=True, fmt=".2f", cmap='Blues')
     g.ax_marg_y.barh(0.5, width=18000, color="grey")
-    g.ax_marg_y.barh(1.5, width=213921, color="grey")
-    g.ax_marg_y.barh(2.5, width=157676, color="grey")
-    g.ax_marg_y.barh(3.5, width=112120, color="grey")
-    g.ax_marg_y.barh(4.5, width=193361, color="grey")
-    g.ax_marg_y.barh(5.5, width=9125, color="grey")
+    g.ax_marg_y.barh(1.5, width=9125, color="grey")
+    g.ax_marg_y.barh(2.5, width=112120, color="grey")
+    g.ax_marg_y.barh(3.5, width=157676, color="grey")
+    g.ax_marg_y.barh(4.5, width=213921, color="grey")
+    g.ax_marg_y.barh(5.5, width=193361, color="grey")
     g.ax_marg_y.barh(6.5, width=110525, color="grey")
 
     # remove ticks showing the heights of the histograms
@@ -57,14 +68,25 @@ def main_resnet():
 
 
 def main_vit():
+    # order: vindr, vindr-pediatric, cxr14, chexpert, mimic, UKA, padchest
 
-    auc_list = np.array([[0.90, 0.72, 0.68, 0.64, 0.71, 0.65, 0.75],
-                         [0.90, 0.81, 0.75, 0.76, 0.70, 0.62, 0.85],
-                         [0.87, 0.76, 0.80, 0.76, 0.68, 0.64, 0.83],
-                         [0.86, 0.77, 0.75, 0.77, 0.64, 0.61, 0.81],
-                         [0.90, 0.77, 0.73, 0.70, 0.87, 0.00, 0.83],
-                         [0.79, 0.69, 0.67, 0.65, 0.00, 0.77, 0.71],
-                         [0.87, 0.77, 0.75, 0.72, 0.69, 0.68, 0.88]])
+    # order:
+
+    # vindr,
+    # vindr-pediatric
+    # cxr14,
+    # chexpert,
+    # mimic,
+    # UKA,
+    # padchest
+
+    auc_list = np.array([[0.90, 0.65, 0.64, 0.68, 0.72, 0.71, 0.75],
+                         [0.79, 0.77, 0.65, 0.67, 0.69, 0.00, 0.71],
+                         [0.86, 0.61, 0.77, 0.75, 0.77, 0.64, 0.81],
+                         [0.87, 0.64, 0.76, 0.80, 0.76, 0.68, 0.83],
+                         [0.90, 0.62, 0.76, 0.75, 0.81, 0.70, 0.85],
+                         [0.90, 0.00, 0.70, 0.73, 0.77, 0.87, 0.83],
+                         [0.87, 0.68, 0.72, 0.75, 0.77, 0.69, 0.88]])
 
     ############ random placeholders below #############
     D = 28
@@ -83,11 +105,11 @@ def main_vit():
 
     sns.heatmap(auc_list, vmin=0.55, vmax=1, annot=True, fmt=".2f", cmap='Blues')
     g.ax_marg_y.barh(0.5, width=18000, color="grey")
-    g.ax_marg_y.barh(1.5, width=213921, color="grey")
-    g.ax_marg_y.barh(2.5, width=157676, color="grey")
-    g.ax_marg_y.barh(3.5, width=112120, color="grey")
-    g.ax_marg_y.barh(4.5, width=193361, color="grey")
-    g.ax_marg_y.barh(5.5, width=9125, color="grey")
+    g.ax_marg_y.barh(1.5, width=9125, color="grey")
+    g.ax_marg_y.barh(2.5, width=112120, color="grey")
+    g.ax_marg_y.barh(3.5, width=157676, color="grey")
+    g.ax_marg_y.barh(4.5, width=213921, color="grey")
+    g.ax_marg_y.barh(5.5, width=193361, color="grey")
     g.ax_marg_y.barh(6.5, width=110525, color="grey")
 
     # remove ticks showing the heights of the histograms
@@ -345,13 +367,13 @@ def effusion_vit():
 
 
 if __name__ == '__main__':
-    # main_resnet()
+    main_resnet()
     # main_vit()
     ###########################################################
-    cardiomegaly_resnet()
-    pneumonia_resnet()
-    nofinding_resnet()
-    effusion_resnet()
+    # cardiomegaly_resnet()
+    # pneumonia_resnet()
+    # nofinding_resnet()
+    # effusion_resnet()
     ###########################################################
     # cardiomegaly_vit()
     # pneumonia_vit()
