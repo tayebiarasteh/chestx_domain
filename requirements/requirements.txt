@@ -1,0 +1,9 @@
+tqdm
+tensorboardx
+pandas
+scikit-image
+scikit-learn
+tensorboardX
+torchio
+pydicom
+torchmetrics
