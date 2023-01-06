@@ -8,13 +8,11 @@ https://github.com/tayebiarasteh/
 
 import os.path
 import time
-import pdb
 import numpy as np
 from tensorboardX import SummaryWriter
 import torch
 import torch.nn.functional as F
 from sklearn import metrics
-import matplotlib.pyplot as plt
 
 from config.serde import read_config, write_config
 
@@ -94,7 +92,6 @@ class Training:
         else:
             elapsed_mins = int(elapsed_time / 60)
             elapsed_secs = elapsed_time - (elapsed_mins * 60)
-            # elapsed_secs = int(elapsed_time - (elapsed_mins * 60))
         return elapsed_hours, elapsed_mins, elapsed_secs
 
 
@@ -123,15 +120,12 @@ class Training:
         print('----------------------------------------------------\n')
 
         self.model = model.to(self.device)
-        # self.model = self.model.half() # float16
 
         self.loss_weight = weight.to(self.device)
         self.loss_function = loss_function(pos_weight=self.loss_weight)
         self.optimiser = optimiser
 
         # Saves the model, optimiser,loss function name for writing to config file
-        # self.model_info['model'] = model.__name__
-        # self.model_info['optimiser'] = optimiser.__name__
         self.model_info['total_param_num'] = total_param_num
         self.model_info['loss_function'] = loss_function.__name__
         self.params['Network'] = self.model_info
@@ -300,13 +294,6 @@ class Training:
             optimal_idx = np.argmax(tpr - fpr)
             optimal_threshold[idx] = thresholds[optimal_idx]
 
-            # metrics.RocCurveDisplay(fpr=fpr, tpr=tpr).plot()
-            # plt.annotate('working point', xy=(fpr[optimal_idx], tpr[optimal_idx]), xycoords='data',
-            #              arrowprops=dict(facecolor='red'))
-            # plt.grid()
-            # plt.title(self.label_names[idx] + f' | threshold: {optimal_threshold[idx]:.4f} | epoch: {self.epoch}')
-            # plt.savefig(self.label_names[idx] + '.png')
-
         predicted_labels = (preds_with_sigmoid_cache > optimal_threshold).astype(np.int32)
 
         confusion = metrics.multilabel_confusion_matrix(labels_cache, predicted_labels)
@@ -340,7 +327,6 @@ class Training:
         total_sensitivity_score.append(np.stack(sensitivity_disease))
         total_precision_score.append(np.stack(precision_disease))
 
-        # average_loss = total_loss / len(valid_loader)
         average_f1_score = np.stack(total_f1_score).mean(0)
         average_AUROC = np.stack(total_AUROC).mean(0)
         average_accuracy = np.stack(total_accuracy).mean(0)
